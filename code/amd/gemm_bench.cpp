@@ -11,9 +11,28 @@
 #include "tensor.h"
 #include "gemm_problems.h"
 
-int time_gemm(Tensor<float> A, Tensor<float> B, Tensor<float> C, bool a_t, bool b_t, rocblas_handle handle) {
-    const float alpha = 1.f / static_cast<float>(A.dims()[1]);
-    const float beta  = 1.f;
+void MyF(int a) { std::cout << "VVVVVV=" << a << "\n"; };
+
+//typedef void (*gemm_function) (int);
+
+template <typename T1, typename T2,
+          rocblas_status (*ROCBLAS_GEMM_FUNCTION)(rocblas_handle handle,
+                                       rocblas_operation transa,
+                                       rocblas_operation transb,
+                                       rocblas_int m,
+                                       rocblas_int n,
+                                       rocblas_int k,
+                                       const T1* alpha,
+                                       const T1* A,
+                                       rocblas_int lda,
+                                       const T1* B,
+                                       rocblas_int ldb,
+                                       const T1* beta,
+                                       T2* C,
+                                       rocblas_int ldc) >
+int time_gemm(Tensor<T1> A, Tensor<T1> B, Tensor<T2> C, bool a_t, bool b_t, rocblas_handle handle) {
+    const T1 alpha = 1.f / static_cast<T1>(A.dims()[1]);
+    const T1 beta  = 1.f;
 
     int m = C.dims()[0];
     int k = a_t ? A.dims()[0] : A.dims()[1];
@@ -22,7 +41,7 @@ int time_gemm(Tensor<float> A, Tensor<float> B, Tensor<float> C, bool a_t, bool 
     int numRepeats = std::max(std::ceil(1e11 / (m * k * n)), 10.);
 
     // Warm up
-    rocblas_status stat = rocblas_sgemm(
+    rocblas_status stat = ROCBLAS_GEMM_FUNCTION(
                 		handle,
                 		a_t ? rocblas_operation_transpose : rocblas_operation_none,
                 		b_t ? rocblas_operation_transpose : rocblas_operation_none,
@@ -34,7 +53,7 @@ int time_gemm(Tensor<float> A, Tensor<float> B, Tensor<float> C, bool a_t, bool 
                     C.begin(), C.dims()[0] );
 
     if (stat != rocblas_status_success) {
-        throw std::runtime_error("sgemm failed");
+        throw std::runtime_error("gemm failed");
     }
 
     hipDeviceSynchronize();
@@ -42,7 +61,7 @@ int time_gemm(Tensor<float> A, Tensor<float> B, Tensor<float> C, bool a_t, bool 
     auto start = std::chrono::steady_clock::now();
 
     for (int i = 0; i < numRepeats; ++i) {
-      rocblas_status stat = rocblas_sgemm(
+      rocblas_status stat = ROCBLAS_GEMM_FUNCTION(
                   		handle,
                 		a_t ? rocblas_operation_transpose : rocblas_operation_none,
                 		b_t ? rocblas_operation_transpose : rocblas_operation_none,
@@ -53,7 +72,7 @@ int time_gemm(Tensor<float> A, Tensor<float> B, Tensor<float> C, bool a_t, bool 
                   		&beta,
                       C.begin(), C.dims()[0] );
         if (stat != rocblas_status_success) {
-            throw std::runtime_error("sgemm failed");
+            throw std::runtime_error("gemm failed");
         }
     }
     hipDeviceSynchronize();
@@ -61,12 +80,16 @@ int time_gemm(Tensor<float> A, Tensor<float> B, Tensor<float> C, bool a_t, bool 
     auto end = std::chrono::steady_clock::now();
 
     return static_cast<int>(std::chrono::duration<double, std::micro>(end - start).count() / numRepeats);
-
 }
 
 int main(int argc, char **argv) {
     hipFree(0);
-    hipSetDevice(1);
+
+    std::string precision = "float";
+    if (argc > 1) {
+        precision = argv[1];
+    }
+
     rocblas_handle handle;
     rocblas_create_handle(&handle);
 
@@ -74,22 +97,34 @@ int main(int argc, char **argv) {
     std::cout << std::setw(30) << "Times" << std::endl;
     std::cout << std::setfill('-') << std::setw(88) << "-" << std::endl;
     std::cout << std::setfill(' ');
-    std::cout << "    m       n      k      a_t     b_t      time (usec) " << std::endl;
+    std::cout << "    m       n      k      a_t     b_t      precision        time (usec) ";
+    std::cout << "\n";
     for (const auto &problem : training_set) {
         int m, n, k;
         bool a_t, b_t;
         std::tie(m, n, k, a_t, b_t) = problem;
 
-        auto a = rand<float>({a_t ? k : m, a_t ? m : k});
-        auto b = rand<float>({b_t ? n : k, b_t ? k : n});
-        auto c = zeros<float>({m, n});
 
         std::cout << std::setw(7) << m;
         std::cout << std::setw(7) << n;
         std::cout << std::setw(7) << k;
         std::cout << std::setw(7) << (a_t ? "t" : "n");
         std::cout << std::setw(7) << (b_t ? "t" : "n");
-        std::cout << std::setw(13) << std::setprecision(6) << time_gemm(a, b, c, a_t, b_t, handle);
+        if (precision == "half") {
+          auto a = rand<uint16_t>({a_t ? k : m, a_t ? m : k});
+          auto b = rand<uint16_t>({b_t ? n : k, b_t ? k : n});
+          auto c = zeros<uint16_t>({m, n});
+          std::cout << std::setw(13) << precision;
+          std::cout << std::setw(13) << std::setprecision(6) <<
+            time_gemm<uint16_t, uint16_t, rocblas_hgemm>(a, b, c, a_t, b_t, handle);
+        } else {
+          auto a = rand<float>({a_t ? k : m, a_t ? m : k});
+          auto b = rand<float>({b_t ? n : k, b_t ? k : n});
+          auto c = zeros<float>({m, n});
+          std::cout << std::setw(13) << precision;
+          std::cout << std::setw(13) << std::setprecision(6) <<
+            time_gemm<float,float, rocblas_sgemm>(a, b, c, a_t, b_t, handle);
+        }
         std::cout << std::endl;
     }
 
