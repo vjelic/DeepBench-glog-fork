@@ -314,7 +314,7 @@ std::tuple<int, int, int, std::string> time_cnn(
     start = std::chrono::steady_clock::now();
 
     for (int i = 0; i < num_repeats; ++i) {
-        // Backward pass wrt weights
+        // Backward pass wrt inputs
         cnn.backward_inputs(filter, delta, dX);
 
     }
@@ -331,7 +331,7 @@ std::tuple<int, int, int, std::string> time_cnn(
 
 int main(int argc, char **argv) {
 
-    int num_repeats = 300;
+    int num_repeats = 100;
     std::string precision ="float";
 
     hipFree(0);
