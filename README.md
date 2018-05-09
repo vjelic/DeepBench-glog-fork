@@ -851,7 +851,7 @@ bin/sparse_bench
 * A ROCm enabled platform, more info [here](https://rocm.github.io/install.html).
 * [MIOpen](https://github.com/ROCmSoftwarePlatform/MIOpen) - HIP backend of MIOpen is required.
 * [rocBLAS](https://github.com/ROCmSoftwarePlatform/rocBLAS)
-
+* [rccl](https://github.com/ROCmSoftwarePlatform/rccl): Multi-GPU MPI implementation on ROCm
 At present only `fp32 train` benchmarks are enabled.
 
 ## Compiling
@@ -864,7 +864,7 @@ Setting your enviroment variables before compiling/running:
 export PATH=PATH_TO_ROCM/bin:$PATH
 export CPATH=PATH_TO_MIOPEN/include:$CPATH
 export LIBRARY_PATH=PATH_TO_MIOPEN/lib:$LIBRARY_PATH
-export LD_LIBRARY_PATH=PATH_TO_MIOPEN/lib:PATH_TO_MIOPENGEMM/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=PATH_TO_RCCL/lib:PATH_TO_MIOPEN/lib:PATH_TO_MIOPENGEMM/lib:$LD_LIBRARY_PATH
 ```
 
 To compile the convolution, RNNs and GEMM benchmarks, run:
@@ -889,4 +889,9 @@ bin/rnn_bench
 To benchmark GEMM:
 ```
 bin/gemm_bench
+```
+
+To benchmark RCCL:
+```
+bin/rccl_single_all_reduce <num_gpus>
 ```
