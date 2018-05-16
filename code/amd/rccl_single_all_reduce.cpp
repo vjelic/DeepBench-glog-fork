@@ -2,7 +2,7 @@
 #include <chrono>
 #include <sstream>
 #include <vector>
-
+#include <iostream>
 #include <hip/hip_runtime_api.h>
 
 #include "hip_stl.h"
