@@ -4,6 +4,7 @@
 #include <vector>
 #include <tuple>
 
+#include<half.hpp>
 #include <hip/hip_runtime.h>
 #include <hip/hip_runtime_api.h>
 
@@ -25,9 +26,9 @@ class miopenCNN {
     size_t bwd_inputs_workspace_size_;
     size_t bwd_params_workspace_size_;
 
-    Tensor<float> fwd_workspace_;
-    Tensor<float> bwd_inputs_workspace_;
-    Tensor<float> bwd_params_workspace_;
+    Tensor<T> fwd_workspace_;
+    Tensor<T> bwd_inputs_workspace_;
+    Tensor<T> bwd_params_workspace_;
 
     Tensor<T> h;
 
@@ -78,9 +79,9 @@ public:
                                                           h_desc_.desc(),
                                                           &fwd_workspace_size_));
 
-        std::vector<int> u = std::vector<int>{static_cast<int>(fwd_workspace_size_ / sizeof(float)), 1};
+        std::vector<int> u = std::vector<int>{static_cast<int>(fwd_workspace_size_ / sizeof(T)), 1};
 
-        fwd_workspace_ = zeros<float>(u);
+        fwd_workspace_ = zeros<T>(u);
 
         const int requestAlgoCount = 1;
         int returnedAlgoCount;
@@ -113,8 +114,8 @@ public:
                                                   conv_desc_.desc(),
                                                   w_desc_.desc(),
                                                   &bwd_params_workspace_size_));
-    u = std::vector<int>{static_cast<int>(bwd_params_workspace_size_ / sizeof(float)), 1};
-    bwd_params_workspace_ = zeros<float>(u);
+    u = std::vector<int>{static_cast<int>(bwd_params_workspace_size_ / sizeof(T)), 1};
+    bwd_params_workspace_ = zeros<T>(u);
 
     CHECK_MIOPEN_ERROR(miopenFindConvolutionBackwardWeightsAlgorithm(
       miopen_handle_.handle(),
@@ -143,8 +144,8 @@ public:
                                                   x_desc_.desc(),
                                                   &bwd_inputs_workspace_size_));
 
-    u = std::vector<int>{static_cast<int>(bwd_inputs_workspace_size_ / sizeof(float)), 1};
-    bwd_inputs_workspace_ = zeros<float>(u);
+    u = std::vector<int>{static_cast<int>(bwd_inputs_workspace_size_ / sizeof(T)), 1};
+    bwd_inputs_workspace_ = zeros<T>(u);
 
         CHECK_MIOPEN_ERROR(miopenFindConvolutionBackwardDataAlgorithm(
           miopen_handle_.handle(),
@@ -373,6 +374,11 @@ int main(int argc, char **argv) {
         {
             std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
                 time_cnn<float>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride, num_repeats);
+        }
+        else if( precision == "half" )
+        {
+            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+                time_cnn<half_float::half>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride, num_repeats);
         }
         else
         {
