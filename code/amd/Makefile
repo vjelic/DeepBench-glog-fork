@@ -9,7 +9,7 @@ HIPCC=/opt/rocm/bin/hipcc
 ROCBLAS_LIB=rocblas
 
 #CONV
-MIOPEN_LIB?=MIOpen
+CONV_LIBRARY?=MIOpen
 
 #DeepBench
 DEEPBENCH_INC=${SOURCE_DIR}/../kernels
@@ -25,15 +25,15 @@ OPT=-O3
 
 $(BIN_DIR)/conv_bench: ${CONV_SOURCE} ${CONV_INCLUDES}
 	$(MKDIR) $(BIN_DIR)
-	$(HIPCC) ${CONV_SOURCE} -o $@ -I$(ROCM_PATH)/include -I$(DEEPBENCH_INC) -l$(CONV_LIBRARY) $(OPT) -std=c++11
+	$(HIPCC) ${CONV_SOURCE} -o $@ -I$(ROCM_PATH)/include -I$(DEEPBENCH_INC) -l$(CONV_LIBRARY) $(OPT)
 
 $(BIN_DIR)/rnn_bench:
 	$(MKDIR) $(BIN_DIR)
-	$(HIPCC) ${SOURCE_DIR}/rnn_bench_rocm.cpp -o $@ -I$(ROCM_PATH)/include -I$(DEEPBENCH_INC) -l$(CONV_LIBRARY) $(OPT) -std=c++11
+	$(HIPCC) ${SOURCE_DIR}/rnn_bench_rocm.cpp -o $@ -I$(ROCM_PATH)/include -I$(DEEPBENCH_INC) -l$(CONV_LIBRARY) $(OPT)
 
 $(BIN_DIR)/gemm_bench: ${GEMM_SOURCE} ${GEMM_INCLUDES}
 	$(MKDIR) $(BIN_DIR)
-	$(HIPCC) ${GEMM_SOURCE} -o $@ -I$(ROCM_PATH)/include -I$(DEEPBENCH_INC) -l$(ROCBLAS_LIB) $(OPT) -std=c++11
+	$(HIPCC) ${GEMM_SOURCE} -o $@ -I$(ROCM_PATH)/include -I$(DEEPBENCH_INC) -l$(ROCBLAS_LIB) $(OPT)
 
 clean:
 	rm -rf $(BIN_DIR)

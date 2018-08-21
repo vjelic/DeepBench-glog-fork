@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
     std::cout << std::setw(30) << "Times" << std::endl;
     std::cout << std::setfill('-') << std::setw(88) << "-" << std::endl;
     std::cout << std::setfill(' ');
-    std::cout << "    m       n      k      a_t     b_t      precision        time (usec) ";
+    std::cout << "    m       n      k      a_t     b_t       precision    time(us)   gflops";
     std::cout << "\n";
     for (const auto &problem : training_set) {
         int m, n, k;
@@ -115,15 +115,15 @@ int main(int argc, char **argv) {
           auto b = rand<uint16_t>({b_t ? n : k, b_t ? k : n});
           auto c = zeros<uint16_t>({m, n});
           std::cout << std::setw(13) << precision;
-          std::cout << std::setw(13) << std::setprecision(6) <<
-            time_gemm<uint16_t, uint16_t, rocblas_hgemm>(a, b, c, a_t, b_t, handle);
+          auto time=  time_gemm<uint16_t, uint16_t, rocblas_hgemm>(a, b, c, a_t, b_t, handle);
+          std::cout << std::setw(13) << std::setprecision(6) << time << "       " << (double(m)*n*k*2/time/1000.0);
         } else {
           auto a = rand<float>({a_t ? k : m, a_t ? m : k});
           auto b = rand<float>({b_t ? n : k, b_t ? k : n});
           auto c = zeros<float>({m, n});
           std::cout << std::setw(13) << precision;
-          std::cout << std::setw(13) << std::setprecision(6) <<
-            time_gemm<float,float, rocblas_sgemm>(a, b, c, a_t, b_t, handle);
+          auto time = time_gemm<float,float, rocblas_sgemm>(a, b, c, a_t, b_t, handle);
+          std::cout << std::setw(13) << std::setprecision(6) << time << "       " << (double(m)*n*k*2/time/1000.0);
         }
         std::cout << std::endl;
     }
