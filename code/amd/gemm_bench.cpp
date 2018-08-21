@@ -99,34 +99,54 @@ int main(int argc, char **argv) {
     std::cout << std::setfill(' ');
     std::cout << "    m       n      k      a_t     b_t       precision    time(us)   gflops";
     std::cout << "\n";
+
+    int totalTime = 0;
+    double geoFlops = 1.0;
+    int numProblems = 0;
     for (const auto &problem : training_set) {
         int m, n, k;
         bool a_t, b_t;
         std::tie(m, n, k, a_t, b_t) = problem;
-
 
         std::cout << std::setw(7) << m;
         std::cout << std::setw(7) << n;
         std::cout << std::setw(7) << k;
         std::cout << std::setw(7) << (a_t ? "t" : "n");
         std::cout << std::setw(7) << (b_t ? "t" : "n");
-        if (precision == "half") {
+        int time;
+        double flops;
+        if (precision == "half_pure") {
           auto a = rand<uint16_t>({a_t ? k : m, a_t ? m : k});
           auto b = rand<uint16_t>({b_t ? n : k, b_t ? k : n});
           auto c = zeros<uint16_t>({m, n});
           std::cout << std::setw(13) << precision;
-          auto time=  time_gemm<uint16_t, uint16_t, rocblas_hgemm>(a, b, c, a_t, b_t, handle);
-          std::cout << std::setw(13) << std::setprecision(6) << time << "       " << (double(m)*n*k*2/time/1000.0);
-        } else {
+          time=  time_gemm<uint16_t, uint16_t, rocblas_hgemm>(a, b, c, a_t, b_t, handle);
+
+          flops = (double(m)*n*k*2/time/1000.0);
+          std::cout << std::setw(13) << std::setprecision(6) << time << "       " << flops;
+        //else if (precision == "half_mixed") {
+        } else if (precision == "float") {
           auto a = rand<float>({a_t ? k : m, a_t ? m : k});
           auto b = rand<float>({b_t ? n : k, b_t ? k : n});
           auto c = zeros<float>({m, n});
           std::cout << std::setw(13) << precision;
-          auto time = time_gemm<float,float, rocblas_sgemm>(a, b, c, a_t, b_t, handle);
-          std::cout << std::setw(13) << std::setprecision(6) << time << "       " << (double(m)*n*k*2/time/1000.0);
+          time = time_gemm<float,float, rocblas_sgemm>(a, b, c, a_t, b_t, handle);
+          flops = (double(m)*n*k*2/time/1000.0);
+          std::cout << std::setw(13) << std::setprecision(6) << time << "       " << flops;
+        } else {
+          throw std::runtime_error(std::string("unsupported precision=")+precision);
         }
+
+        numProblems++;
+        totalTime += time;
+        geoFlops *= flops;
         std::cout << std::endl;
     }
+    double power = 1.0/numProblems;
+    geoFlops = std::pow(geoFlops, power);
+    //Summary shows total-time and  geomean(gflops)
+    std::cout << std::setw(7+7+7+7+7) << "summary:" << std::setw(13) << "";
+    std::cout << std::setw(13) << std::setprecision(6) << totalTime << "       " << geoFlops << "\n";
 
     rocblas_destroy_handle(handle);
     return 0;
