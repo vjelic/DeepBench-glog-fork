@@ -406,7 +406,7 @@ int main(int argc, char **argv) {
         }
         else if( precision == "half" )
         {
-            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s) = 
                 time_cnn<half_float::half>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride, num_repeats);
         }
         else
