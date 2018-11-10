@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rccl/rccl.h>
+#include <rccl.h>
 
 // Helper function to throw std::runtime_error on rccl failures.
 void throw_rccl_error(rcclResult_t ret, int rank, int line, const char* filename) {
