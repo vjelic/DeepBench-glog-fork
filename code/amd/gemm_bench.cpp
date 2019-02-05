@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
           auto a = rand<uint16_t>({a_t ? k : m, a_t ? m : k});
           auto b = rand<uint16_t>({b_t ? n : k, b_t ? k : n});
           auto c = zeros<uint16_t>({m, n});
-          std::cout << std::setw(13) << precision;
+          std::cout << std::right << std::setw(13) << precision;
           time=  time_gemm<uint16_t, uint16_t, rocblas_hgemm>(a, b, c, a_t, b_t, handle);
 
           flops = (double(m)*n*k*2/time/1000.0);
