@@ -1,6 +1,6 @@
 
 NVCC=nvcc
-ARCH?=sm_52
+ARCH?=sm_70
 
 CUDA_PATH?=/usr/local/cuda
 CUDA_LIB64=$(CUDA_PATH)/lib64
