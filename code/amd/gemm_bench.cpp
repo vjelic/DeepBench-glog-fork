@@ -19,7 +19,8 @@ int time_gemm(Tensor<float> A, Tensor<float> B, Tensor<float> C, bool a_t, bool 
     int k = a_t ? A.dims()[0] : A.dims()[1];
     int n = C.dims()[1];
 
-    int numRepeats = std::max(std::ceil(1e11 / (m * k * n)), 10.);
+    //int numRepeats = std::max(std::ceil(1e11 / (m * k * n)), 10.);
+    int numRepeats = 400;
 
     // Warm up
     rocblas_status stat = rocblas_sgemm(
