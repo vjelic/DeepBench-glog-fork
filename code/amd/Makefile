@@ -13,6 +13,7 @@ MIOPEN_LIB?=MIOpen
 
 #DeepBench
 DEEPBENCH_INC=${SOURCE_DIR}/../kernels
+MIOPEN_INC=/opt/rocm/miopen/include
 
 all: conv rnn gemm 
 
@@ -21,11 +22,11 @@ OPT=-O3
 
 conv:
 	$(MKDIR) $(BIN_DIR)
-	$(HIPCC) ${SOURCE_DIR}/conv_bench_rocm.cpp -o $(BIN_DIR)/conv_bench -I$(DEEPBENCH_INC) -l$(MIOPEN_LIB) $(OPT) -std=c++11 --amdgpu-target=gfx900
+	$(HIPCC) ${SOURCE_DIR}/conv_bench_rocm.cpp -o $(BIN_DIR)/conv_bench -I$(DEEPBENCH_INC) -I$(MIOPEN_INC) -l$(MIOPEN_LIB) $(OPT) -std=c++11 --amdgpu-target=gfx906
 
 rnn:
 	$(MKDIR) $(BIN_DIR)
-	$(HIPCC) ${SOURCE_DIR}/rnn_bench_rocm.cpp -o $(BIN_DIR)/rnn_bench -I$(DEEPBENCH_INC) -l$(MIOPEN_LIB) $(OPT) -std=c++11 --amdgpu-target=gfx900
+	$(HIPCC) ${SOURCE_DIR}/rnn_bench_rocm.cpp -o $(BIN_DIR)/rnn_bench -I$(DEEPBENCH_INC) -I$(MIOPEN_INC) -l$(MIOPEN_LIB) $(OPT) -std=c++11 --amdgpu-target=gfx906
 
 gemm:
 	$(MKDIR) $(BIN_DIR)
