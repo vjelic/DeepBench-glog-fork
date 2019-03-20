@@ -173,13 +173,13 @@ public:
 
     std::string get_fwd_algo_string() {
         if (fwd_algo_ == miopenConvolutionFwdAlgoGEMM)
-            return " ConvolutionFwdAlgoGEMM";
+            return " FwdAlgoGEMM";
         else if (fwd_algo_ == miopenConvolutionFwdAlgoDirect)
-            return " ConvolutionFwdAlgoDirect";
+            return " FwdAlgoDirect";
         else if (fwd_algo_ == miopenConvolutionFwdAlgoFFT)
-            return " ConvolutionFwdAlgoFFT";
+            return " FwdAlgoFFT";
         else if (fwd_algo_ == miopenConvolutionFwdAlgoWinograd)
-            return " ConvolutionFwdAlgoWinograd";
+            return " FwdAlgoWinograd";
         else {
             std::stringstream ss;
             ss << "Illegal algorithm passed to get_fwd_algo_string. Algo: " << fwd_algo_ << std::endl;
@@ -187,6 +187,37 @@ public:
         }
     }
 
+    std::string get_bwd_inputs_algo_string() {
+        if (bwd_inputs_algo_ == miopenConvolutionBwdDataAlgoGEMM)
+            return " BwdDataAlgoGEMM";
+        else if (bwd_inputs_algo_ == miopenConvolutionBwdDataAlgoDirect)
+            return " BwdDataAlgoDirect";
+        else if (bwd_inputs_algo_ == miopenConvolutionBwdDataAlgoFFT)
+            return " BwdDataAlgoFFT";
+        else if (bwd_inputs_algo_ == miopenConvolutionBwdDataAlgoWinograd)
+            return " BwdDataAlgoWinograd";
+        else if (bwd_inputs_algo_ == miopenTransposeBwdDataAlgoGEMM)
+            return " TransposeBwdDataAlgoGEMM";
+        else {
+            std::stringstream ss;
+            ss << "Illegal algorithm passed to get_bwd_inputs_algo_string. Algo: " << bwd_inputs_algo_ << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    std::string get_bwd_params_algo_string() {
+        if (bwd_params_algo_ == miopenConvolutionBwdWeightsAlgoGEMM)
+            return " BwdWeightsAlgoGEMM";
+        else if (bwd_params_algo_ == miopenConvolutionBwdWeightsAlgoDirect)
+            return " BwdWeightsAlgoDirect";
+        else if (bwd_params_algo_ == miopenConvolutionBwdWeightsAlgoWinograd)
+            return " BwdWeightsAlgoWinograd";
+        else {
+            std::stringstream ss;
+            ss << "Illegal algorithm passed to get_bwd_params_algo_string. Algo: " << bwd_params_algo_ << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
 
     void forward(Tensor<T> x, Tensor<T> filter, Tensor<T> h) {
 
@@ -249,7 +280,7 @@ public:
 };
 
 template<typename T>
-std::tuple<int, int, int, std::string> time_cnn(
+std::tuple<int, int, int, std::string, std::string, std::string> time_cnn(
          int k, int c, int r, int s,
          int n, int h, int w,
          int pad_h, int pad_w,
@@ -269,6 +300,8 @@ std::tuple<int, int, int, std::string> time_cnn(
     auto output = cnn.getOutputTensor();
 
     std::string fwd_algo_s = cnn.get_fwd_algo_string();
+    std::string bwd_inputs_algo_s = cnn.get_bwd_inputs_algo_string();
+    std::string bwd_params_algo_s = cnn.get_bwd_params_algo_string();
 
     //Warm up
     cnn.forward(input, filter, output);
@@ -324,7 +357,7 @@ std::tuple<int, int, int, std::string> time_cnn(
 
     int bwd_inputs_time = static_cast<int>(std::chrono::duration<double, std::micro>(end - start).count() / num_repeats);
 
-    return std::tuple<int, int, int, std::string>(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s);
+    return std::tuple<int, int, int, std::string, std::string, std::string>(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s);
 
 }
 
@@ -368,10 +401,12 @@ int main(int argc, char **argv) {
 
         int fwd_time, bwd_inputs_time, bwd_params_time;
         std::string fwd_algo_s;
+        std::string bwd_inputs_algo_s;
+        std::string bwd_params_algo_s;
 
         if( precision == "float" )
         {
-            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s) =
                 time_cnn<float>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride, num_repeats);
         }
         else
@@ -396,6 +431,8 @@ int main(int argc, char **argv) {
         std::cout << std::setw(19) << std::setprecision(8) << fwd_time + bwd_inputs_time + bwd_params_time;
 
         std::cout << std::setw(25) << fwd_algo_s;
+        std::cout << std::setw(25) << bwd_inputs_algo_s;
+        std::cout << std::setw(25) << bwd_params_algo_s;
 
         std::cout << std::endl;
 
