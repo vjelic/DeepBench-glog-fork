@@ -29,7 +29,6 @@
 #endif
 #endif
 
-
 /*
 Usage:
 
@@ -298,6 +297,46 @@ public:
         }
     }
 
+    std::string get_bwd_inputs_algo_string() {
+        if (bwd_inputs_algo_ == CUDNN_CONVOLUTION_BWD_DATA_ALGO_0)
+            return "AL0";
+        else if (bwd_inputs_algo_ == CUDNN_CONVOLUTION_BWD_DATA_ALGO_1)
+            return "AL1";
+        else if (bwd_inputs_algo_ == CUDNN_CONVOLUTION_BWD_DATA_ALGO_FFT)
+            return "FFT";
+        else if (bwd_inputs_algo_ == CUDNN_CONVOLUTION_BWD_DATA_ALGO_FFT_TILING)
+            return "FFT_TILING";
+        else if (bwd_inputs_algo_ == CUDNN_CONVOLUTION_BWD_DATA_ALGO_WINOGRAD)
+            return "WINOGRAD";
+        else if (bwd_inputs_algo_ == CUDNN_CONVOLUTION_BWD_DATA_ALGO_WINOGRAD_NONFUSED)
+            return "WINOGRAD_NONFUSED";
+        else {
+            std::stringstream ss;
+            ss << "Illegal algorithm passed to get_bwd_inputs_algo_string. Algo: " << bwd_inputs_algo_ << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
+    std::string get_bwd_params_algo_string() {
+        if (bwd_params_algo_ == CUDNN_CONVOLUTION_BWD_FILTER_ALGO_0)
+            return "AL0";
+        else if (bwd_params_algo_ == CUDNN_CONVOLUTION_BWD_FILTER_ALGO_1)
+            return "AL1";
+        else if (bwd_params_algo_ == CUDNN_CONVOLUTION_BWD_FILTER_ALGO_FFT)
+            return "FFT";
+        else if (bwd_params_algo_ == CUDNN_CONVOLUTION_BWD_FILTER_ALGO_3)
+            return "AL3";
+        else if (bwd_params_algo_ == CUDNN_CONVOLUTION_BWD_FILTER_ALGO_WINOGRAD_NONFUSED)
+            return "WINOGRAD_NONFUSED";
+        else if (bwd_params_algo_ == CUDNN_CONVOLUTION_BWD_FILTER_ALGO_FFT_TILING)
+            return "FFT_TILING";
+        else {
+            std::stringstream ss;
+            ss << "Illegal algorithm passed to get_bwd_params_algo_string. Algo: " << bwd_params_algo_ << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+
 
     void forward(Tensor<T1> x, Tensor<T1> filter, Tensor<T1> h) {
 
@@ -357,7 +396,7 @@ public:
 };
 
 template <typename T1, typename T2>
-std::tuple<int, int, int, std::string> time_cnn(
+std::tuple<int, int, int, std::string, std::string, std::string> time_cnn(
          int k, int c, int r, int s,
          int n, int h, int w,
          int pad_h, int pad_w,
@@ -380,6 +419,8 @@ std::tuple<int, int, int, std::string> time_cnn(
 
 
     std::string fwd_algo_s = cnn.get_fwd_algo_string();
+    std::string bwd_inputs_algo_s = cnn.get_bwd_inputs_algo_string();
+    std::string bwd_params_algo_s = cnn.get_bwd_params_algo_string();
 
     //Warm up
     cnn.forward(input, filter, output);
@@ -440,7 +481,7 @@ std::tuple<int, int, int, std::string> time_cnn(
         bwd_inputs_time = static_cast<int>(std::chrono::duration<double, std::micro>(end - start).count() / num_repeats);
     }
 
-    return std::tuple<int, int, int, std::string>(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s);
+    return std::tuple<int, int, int, std::string, std::string, std::string>(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s);
 
 }
 
@@ -499,7 +540,7 @@ int main(int argc, char **argv) {
     if (PAD_KERNELS && ((precision == "int8" && inference) || (USE_TENSOR_CORES && !inference)))
         std::cout << " pad_kerenels  ";
 
-    std::cout << "   fwd_algo " << std::endl;
+    std::cout << "   fwd_algo bwd_inputs_algo bwd_params_algo" << std::endl;
 
     std::cout << std::setfill('-') << std::setw(200) << "-" << std::endl;
     std::cout << std::setfill(' ');
@@ -566,20 +607,22 @@ int main(int argc, char **argv) {
 
         int fwd_time, bwd_inputs_time, bwd_params_time;
         std::string fwd_algo_s;
+        std::string bwd_inputs_algo_s;
+        std::string bwd_params_algo_s;
 
         std::stringstream ss;
         ss << "Unsupported precision requested. Precision: " << precision << " Inference: " << inference;
 
 #if CUDNN_MAJOR >= 6
         if (precision == "float") {
-            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s) =
                 time_cnn<float, float>(k, padded_c, r, s, n, padded_h, padded_w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
         } else if (precision == "half") {
-            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s) =
                 time_cnn<uint16_t, uint16_t>(k, padded_c, r, s, n, padded_h, padded_w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
         } else if ((precision == "int8") && inference) {
             if (!skip_kernel) {
-                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s) =
                     time_cnn<uint8_t, int>(k, padded_c, r, s, n, padded_h, padded_w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
             }
         } else {
@@ -588,7 +631,7 @@ int main(int argc, char **argv) {
 #else
         if (precision != "float")
             throw std::runtime_error(ss.str());
-        std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+        std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s, bwd_inputs_algo_s, bwd_params_algo_s) =
             time_cnn<float, float>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
 #endif
 
@@ -630,6 +673,8 @@ int main(int argc, char **argv) {
 
 
         std::cout << std::setw(25) << fwd_algo_s;
+        std::cout << std::setw(25) << bwd_inputs_algo_s;
+        std::cout << std::setw(25) << bwd_params_algo_s;
         std::cout << std::endl;
     }
 
