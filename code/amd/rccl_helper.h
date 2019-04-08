@@ -3,10 +3,10 @@
 #include <rccl.h>
 
 // Helper function to throw std::runtime_error on rccl failures.
-void throw_rccl_error(rcclResult_t ret, int rank, int line, const char* filename) {
-    if (ret != rcclSuccess) {
+void throw_rccl_error(ncclResult_t ret, int rank, int line, const char* filename) {
+    if (ret != ncclSuccess) {
         std::stringstream ss;
-        ss << "RCCL failure: " << rcclGetErrorString(ret) <<
+        ss << "RCCL failure: " << ncclGetErrorString(ret) <<
             " in " << filename << " at line: " << line << " rank: " << rank << std::endl;
         throw std::runtime_error(ss.str());
     }

@@ -11,7 +11,7 @@
 #include "hip_helper.h"
 #include "all_reduce_problems.h"
 
-int all_reduce(int t_size, hipStream_t * streams, rcclComm_t * comms, int numGpus, int numRepeats) {
+int all_reduce(int t_size, hipStream_t * streams, ncclComm_t * comms, int numGpus, int numRepeats) {
 
     float ** send_buff = (float **)malloc(numGpus * sizeof(float *));
     float ** recv_buff = (float **)malloc(numGpus * sizeof(float *));
@@ -37,16 +37,18 @@ int all_reduce(int t_size, hipStream_t * streams, rcclComm_t * comms, int numGpu
     auto start = std::chrono::steady_clock::now();
 
     for (int i = 0; i < numRepeats; i++) {
+        ncclGroupStart();
         for (int j = 0; j < numGpus; j++) {
             CHECK_HIP_ERROR(hipSetDevice(j));
-            CHECK_RCCL_ERROR(rcclAllReduce((void *) (send_buff[j]),
+            CHECK_RCCL_ERROR(ncclAllReduce((void *) (send_buff[j]),
                                            (void *) (recv_buff[j]),
                                            t_size,
-                                           rcclFloat,
-                                           rcclSum,
+                                           ncclFloat,
+                                           ncclSum,
                                            comms[j],
                                            streams[j]), 0);
         }
+        ncclGroupEnd();
 
         for (int j = 0; j < numGpus; j++) {
             CHECK_HIP_ERROR(hipSetDevice(j));
@@ -107,8 +109,8 @@ int main(int argc, char  **argv) {
         }
     }
 
-    rcclComm_t* comms = (rcclComm_t*)malloc(sizeof(rcclComm_t)*numGpus);
-    CHECK_RCCL_ERROR(rcclCommInitAll(comms, numGpus, devList.data()), 0);
+    ncclComm_t* comms = (ncclComm_t*)malloc(sizeof(ncclComm_t)*numGpus);
+    CHECK_RCCL_ERROR(ncclCommInitAll(comms, numGpus, devList.data()), 0);
 
     hipStream_t * streams = (hipStream_t*)malloc(sizeof(hipStream_t)*numGpus);
     for (int i = 0; i < numGpus; i++) {
@@ -138,7 +140,7 @@ int main(int argc, char  **argv) {
     }
 
     for (int i = 0; i < numGpus; i++) {
-        rcclCommDestroy(comms[i]);
+        ncclCommDestroy(comms[i]);
     }
 
     free(streams);
