@@ -3,6 +3,28 @@ std::vector<std::tuple<unsigned int, unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int, unsigned int>> training_set = {
 
+//resnet50
+std::make_tuple(230,230,3,128,64,7,7,0,0,2,2),
+std::make_tuple(56,56,64,128,64,1,1,0,0,1,1),
+std::make_tuple(56,56,64,128,256,1,1,0,0,1,1),
+std::make_tuple(56,56,64,128,64,3,3,1,1,1,1),
+std::make_tuple(56,56,256,128,64,1,1,0,0,1,1),
+std::make_tuple(56,56,256,128,128,1,1,0,0,2,2),
+std::make_tuple(56,56,256,128,512,1,1,0,0,2,2),
+std::make_tuple(28,28,128,128,128,3,3,1,1,1,1),
+std::make_tuple(28,28,128,128,512,1,1,0,0,1,1),
+std::make_tuple(28,28,512,128,128,1,1,0,0,1,1),
+std::make_tuple(28,28,512,128,256,1,1,0,0,2,2),
+std::make_tuple(28,28,512,128,1024,1,1,0,0,2,2),
+std::make_tuple(14,14,256,128,256,3,3,1,1,1,1),
+std::make_tuple(14,14,256,128,1024,1,1,0,0,1,1),
+std::make_tuple(14,14,1024,128,256,1,1,0,0,1,1),
+std::make_tuple(14,14,1024,128,512,1,1,0,0,2,2),
+std::make_tuple(14,14,1024,128,2048,1,1,0,0,2,2),
+std::make_tuple(7,7,512,128,512,3,3,1,1,1,1),
+std::make_tuple(7,7,512,128,2048,1,1,0,0,1,1),
+std::make_tuple(7,7,2048,128,512,1,1,0,0,1,1)
+
 /*
 std::make_tuple(1,1,256,32,324,3,3,1,1,1,1),
 std::make_tuple(1,1,256,32,16,3,3,1,1,1,1),
@@ -36,6 +58,7 @@ std::make_tuple(75,75,64,32,64,3,3,1,1,1,1),
 std::make_tuple(300,300,3,32,64,7,7,3,3,2,2)
 */
 
+/*
 std::make_tuple(1030,1030,3,4,64,7,7,0,0,2,2),
 std::make_tuple(256,256,64,4,64,1,1,0,0,1,1),
 std::make_tuple(256,256,64,4,256,1,1,0,0,1,1),
@@ -82,6 +105,7 @@ std::make_tuple(1,1,1024,800,1024,1,1,0,0,1,1),
 std::make_tuple(14,14,256,800,256,3,3,1,1,1,1),
 std::make_tuple(28,28,256,800,256,2,2,0,0,2,2),
 std::make_tuple(28,28,256,800,81,1,1,0,0,1,1)
+*/
 
 /*
     std::make_tuple(700, 161, 1, 4, 32, 20, 5, 0, 0, 2, 2),
