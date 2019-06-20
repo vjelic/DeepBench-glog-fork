@@ -180,6 +180,8 @@ public:
             return " ConvolutionFwdAlgoFFT";
         else if (fwd_algo_ == miopenConvolutionFwdAlgoWinograd)
             return " ConvolutionFwdAlgoWinograd";
+        else if (fwd_algo_ == miopenConvolutionFwdAlgoImplicitGEMM)
+            return " ConvolutionFwdAlgoImplicitGEMM";
         else {
             std::stringstream ss;
             ss << "Illegal algorithm passed to get_fwd_algo_string. Algo: " << fwd_algo_ << std::endl;
