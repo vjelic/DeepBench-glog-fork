@@ -180,6 +180,8 @@ public:
             return " FwdAlgoFFT";
         else if (fwd_algo_ == miopenConvolutionFwdAlgoWinograd)
             return " FwdAlgoWinograd";
+        else if (fwd_algo_ == miopenConvolutionFwdAlgoImplicitGEMM)
+            return " FwdAlgoImplicitGEMM";
         else {
             std::stringstream ss;
             ss << "Illegal algorithm passed to get_fwd_algo_string. Algo: " << fwd_algo_ << std::endl;
@@ -198,6 +200,8 @@ public:
             return " BwdDataAlgoWinograd";
         else if (bwd_inputs_algo_ == miopenTransposeBwdDataAlgoGEMM)
             return " TransposeBwdDataAlgoGEMM";
+        else if (bwd_inputs_algo_ == miopenConvolutionBwdDataAlgoImplicitGEMM)
+            return " BwdDataAlgoImplicitGEMM";
         else {
             std::stringstream ss;
             ss << "Illegal algorithm passed to get_bwd_inputs_algo_string. Algo: " << bwd_inputs_algo_ << std::endl;
