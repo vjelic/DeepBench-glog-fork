@@ -3,6 +3,7 @@
 #include <chrono>
 #include <vector>
 #include <tuple>
+#include <iostream>
 
 #include <hip/hip_runtime.h>
 #include <hip/hip_runtime_api.h>
@@ -183,9 +184,7 @@ public:
         else if (fwd_algo_ == miopenConvolutionFwdAlgoImplicitGEMM)
             return " ConvolutionFwdAlgoImplicitGEMM";
         else {
-            std::stringstream ss;
-            ss << "Illegal algorithm passed to get_fwd_algo_string. Algo: " << fwd_algo_ << std::endl;
-            throw std::runtime_error(ss.str());
+            return " Unknown Algorithm";
         }
     }
 
