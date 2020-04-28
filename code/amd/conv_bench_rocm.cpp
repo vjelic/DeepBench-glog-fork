@@ -46,7 +46,7 @@ public:
   miopenCNN(int _w, int _h, int c, int n, int k, int r, int s, int pad_w,
             int pad_h, int wstride, int hstride, int group_count, Tensor<T> x,
             Tensor<T> w)
-      : miopen_handle_(), x_desc_(n, c, _h, _w), w_desc_(k, c, r, s),
+      : miopen_handle_(), x_desc_(n, c, _h, _w), w_desc_(k, c / group_count, r, s),
         conv_desc_(pad_h, pad_w, hstride, wstride, group_count) {
     int out_h, out_w, out_c, out_n;
 
@@ -217,7 +217,7 @@ time_cnn(int k, int c, int r, int s, int n, int h, int w, int pad_h, int pad_w,
          int hstride, int wstride, int group_count, int num_repeats) {
 
   // Allocate memory for filter
-  auto filter = rand<T>(std::vector<int>{r, s, c, k});
+  auto filter = rand<T>(std::vector<int>{r, s, c / group_count, k});
 
   // Allocate memory for input
   auto input = rand<T>(std::vector<int>{w, h, c, n});
