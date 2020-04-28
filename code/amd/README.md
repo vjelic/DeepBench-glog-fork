@@ -5,7 +5,7 @@ make
 
 ## Usage
 ```
-bin/conv_bench <precision> <batch_size> <num_repeats>
+bin/conv_bench <precision: float|float16> <batch_size> <num_repeats>
 ```
 
 ## Output (csv format)
