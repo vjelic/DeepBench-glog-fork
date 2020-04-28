@@ -134,6 +134,8 @@ public:
       return "FwdAlgoWinograd";
     else if (fwd_algo_ == miopenConvolutionFwdAlgoImplicitGEMM)
       return "FwdAlgoImplicitGEMM";
+    else if (fwd_algo_ == miopenConvolutionFwdAlgoStaticCompiledGEMM)
+      return "FwdAlgoStaticCompiledGEMM";
     else {
       std::stringstream ss;
       ss << "Illegal algorithm passed to get_fwd_algo_string. Algo: "
@@ -170,6 +172,8 @@ public:
       return "BwdWeightsAlgoDirect";
     else if (bwd_params_algo_ == miopenConvolutionBwdWeightsAlgoWinograd)
       return "BwdWeightsAlgoWinograd";
+    else if (bwd_params_algo_ == miopenConvolutionBwdWeightsAlgoImplicitGEMM)
+      return "BwdWeightsAlgoImplicitGEMM";
     else {
       std::stringstream ss;
       ss << "Illegal algorithm passed to get_bwd_params_algo_string. Algo: "
