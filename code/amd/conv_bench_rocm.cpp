@@ -297,13 +297,15 @@ time_cnn(int k, int c, int r, int s, int n, int h, int w, int pad_h, int pad_w,
 int main(int argc, char **argv) {
 
   int num_repeats = 100;
+  int batch_size = 0;
   std::string precision = "float";
 
   hipFree(0);
 
   if (argc > 1) {
-    num_repeats = atoi(argv[1]);
-    precision = argv[2];
+    precision = argv[1];
+    batch_size = atoi(argv[2]);
+    num_repeats = atoi(argv[3]);
   }
 
   std::cout << "w,h,c,n,k,f_w,f_h,pad_w,pad_h,stride_w,stride_"
@@ -331,6 +333,9 @@ int main(int argc, char **argv) {
 
     std::tie(w, h, c, n, k, s, r, pad_w, pad_h, wstride, hstride, group_count) =
         problem;
+
+    if (batch_size != 0)
+      n = batch_size;
 
     int fwd_time, bwd_inputs_time, bwd_params_time;
     std::string fwd_algo_s;
@@ -360,15 +365,15 @@ int main(int argc, char **argv) {
     std::cout << "," << wstride;
     std::cout << "," << hstride;
     std::cout << "," << group_count;
-    std::cout << "," << flopCnt / 1e9;
-    std::cout << "," << std::setprecision(7) << fwd_time;
-    std::cout << "," << std::setprecision(7) << flopCnt / fwd_time / 1e6;
+    std::cout << "," << std::setprecision(4) << flopCnt / 1e9;
+    std::cout << "," << std::setprecision(4) << fwd_time;
+    std::cout << "," << std::setprecision(4) << flopCnt / fwd_time / 1e6;
     std::cout << "," << fwd_algo_s;
-    std::cout << "," << std::setprecision(7) << bwd_inputs_time;
-    std::cout << "," << std::setprecision(7) << flopCnt / bwd_inputs_time / 1e6;
+    std::cout << "," << std::setprecision(4) << bwd_inputs_time;
+    std::cout << "," << std::setprecision(4) << flopCnt / bwd_inputs_time / 1e6;
     std::cout << "," << bwd_inputs_algo_s;
-    std::cout << "," << std::setprecision(7) << bwd_params_time;
-    std::cout << "," << std::setprecision(7) << flopCnt / bwd_params_time / 1e6;
+    std::cout << "," << std::setprecision(4) << bwd_params_time;
+    std::cout << "," << std::setprecision(4) << flopCnt / bwd_params_time / 1e6;
     std::cout << "," << bwd_params_algo_s;
 
     std::cout << std::endl;
