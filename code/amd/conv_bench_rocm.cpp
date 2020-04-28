@@ -349,6 +349,11 @@ int main(int argc, char **argv) {
                bwd_inputs_algo_s, bwd_params_algo_s, flopCnt) =
           time_cnn<float>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride,
                           group_count, num_repeats);
+    } else if (precision == "float16") {
+      std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s,
+               bwd_inputs_algo_s, bwd_params_algo_s, flopCnt) =
+          time_cnn<float16>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride,
+                            group_count, num_repeats);
     } else {
       throw std::runtime_error("unknown precision");
     }
