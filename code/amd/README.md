@@ -7,6 +7,11 @@ make
 ```
 bin/conv_bench <precision: float|float16> <batch_size> <num_repeats>
 ```
+Example:
+```
+bin/conv_bench float 128 100
+```
+
 
 ## Output (csv format)
 ```
