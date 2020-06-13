@@ -18,13 +18,13 @@ CONV_LIBRARY?=cudnn
 CONV_PATH?=$
 KERNELS_DIR=../kernels/
 PAD_KERNELS?=1
-USE_TENSOR_CORES?=0
+USE_TENSOR_CORES?=1
 COMMA=,
 NVCC_ARCH_ARGS=$(foreach a,$(subst $(COMMA), ,$(ARCH)),--generate-code arch=$(patsubst sm_%,compute_%,$(a)),code=$(a))
 
 .PHONY=all gemm conv rnn all_reduce nccl_single nccl_mpi clean
 
-all: gemm conv rnn all_reduce
+all: conv #rnn all_reduce
 
 gemm:
 	$(MKDIR) $(BIN_DIR) 
