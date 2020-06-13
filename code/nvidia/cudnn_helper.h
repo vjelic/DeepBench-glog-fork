@@ -262,7 +262,7 @@ class ConvolutionDescriptor {
 public:
 
 
-    ConvolutionDescriptor(int pad_h, int pad_w, int hstride, int wstride) :
+    ConvolutionDescriptor(int pad_h, int pad_w, int hstride, int wstride, int group_count) :
         desc_(new cudnnConvolutionDescriptor_t, ConvolutionDescriptorDeleter()) {
 
         CHECK_CUDNN_ERROR(cudnnCreateConvolutionDescriptor(desc_.get()));
@@ -301,6 +301,8 @@ public:
                                                           CUDNN_CONVOLUTION));
 
 #endif
+
+	cudnnSetConvolutionGroupCount(*desc_, group_count);
 
     }
 
