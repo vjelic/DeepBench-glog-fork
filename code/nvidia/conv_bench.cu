@@ -91,6 +91,9 @@ class cudnnCNN {
     CudnnHandle cudnn_handle_;
 
 public:
+    std::size_t flop_ = 0;
+
+public:
 
     cudnnCNN(int w, int h, int c, int n, int k, int r, int s,
              int pad_w, int pad_h, int wstride, int hstride,
@@ -140,6 +143,8 @@ public:
         h_desc_ = TensorDescriptor4d<T1>(format, out_n, out_c, out_h, out_w);
 
         output_dims_ = {out_w, out_h, out_c, out_n};
+
+        flop_ = static_cast<std::size_t>(2) * n * k * c * r * s* out_h * out_w;
 
 #if USE_GET
         if (std::is_same<T1, uint8_t>::value) {
@@ -311,7 +316,6 @@ public:
         }
     }
 
-
     void forward(Tensor<T1> x, Tensor<T1> filter, Tensor<T1> h) {
 
         // Convolution forward.
@@ -370,7 +374,7 @@ public:
 };
 
 template <typename T1, typename T2>
-std::tuple<int, int, int, std::string> time_cnn(
+std::tuple<int, int, int, std::size_t, std::string> time_cnn(
          int k, int c, int r, int s,
          int n, int h, int w,
          int pad_h, int pad_w,
@@ -453,7 +457,7 @@ std::tuple<int, int, int, std::string> time_cnn(
         bwd_inputs_time = static_cast<int>(std::chrono::duration<double, std::micro>(end - start).count() / num_repeats);
     }
 
-    return std::tuple<int, int, int, std::string>(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s);
+    return std::tuple<int, int, int, std::size_t, std::string>(fwd_time, bwd_inputs_time, bwd_params_time, cnn.flop_, fwd_algo_s);
 
 }
 
@@ -519,7 +523,7 @@ int main(int argc, char **argv) {
 
     int pad_kernels_count = 0;
 
-    for (const auto &problem : (inference ? inference_server_set : training_set)) {
+    for (const auto &problem : resnet50_b128) {
 
         // Filter parameters
         int k, c, r, s; // r - filter_h (f_h), s - filter_w (f_w)
@@ -580,6 +584,7 @@ int main(int argc, char **argv) {
 #endif
 
         int fwd_time, bwd_inputs_time, bwd_params_time;
+        std::size_t flop;
         std::string fwd_algo_s;
 
         std::stringstream ss;
@@ -587,19 +592,19 @@ int main(int argc, char **argv) {
 
 #if CUDNN_MAJOR >= 6
         if (precision == "float") {
-            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+            std::tie(fwd_time, bwd_inputs_time, bwd_params_time, flop, fwd_algo_s) =
                 time_cnn<float, float>(k, padded_c, r, s, n, padded_h, padded_w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
         } else if (precision == "half") {
             if (!inference) {
-                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, flop, fwd_algo_s) =
                     time_cnn<uint16_t, uint32_t>(padded_k, padded_c, r, s, n, padded_h, padded_w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
             } else {
-                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, flop, fwd_algo_s) =
                     time_cnn<uint16_t, uint16_t>(padded_k, padded_c, r, s, n, padded_h, padded_w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
             }
         } else if ((precision == "int8") && inference) {
             if (!skip_kernel) {
-                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+                std::tie(fwd_time, bwd_inputs_time, bwd_params_time, flop, fwd_algo_s) =
                     time_cnn<uint8_t, int>(padded_k, padded_c, r, s, n, padded_h, padded_w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
             }
         } else {
@@ -608,7 +613,7 @@ int main(int argc, char **argv) {
 #else
         if (precision != "float")
             throw std::runtime_error(ss.str());
-        std::tie(fwd_time, bwd_inputs_time, bwd_params_time, fwd_algo_s) =
+        std::tie(fwd_time, bwd_inputs_time, bwd_params_time, flop, fwd_algo_s) =
             time_cnn<float, float>(k, c, r, s, n, h, w, pad_h, pad_w, hstride, wstride, num_repeats, curand_gen, inference);
 #endif
 
@@ -629,18 +634,16 @@ int main(int argc, char **argv) {
         if (skip_kernel) {
             std::cout << "Not Supported";
         } else {
-            std::cout << fwd_time;
+            std::cout << fwd_time << std::setw(15) << (flop / fwd_time) * 1.e-6;
         }
 
         if (PAD_KERNELS && precision == "int8" && inference) {
             std::cout << std::setw(15) <<  need_padding;
         }
 
-
-
         if (!inference) {
-            std::cout << std::setw(24) << std::setprecision(7) << bwd_inputs_time;
-            std::cout << std::setw(24) << std::setprecision(7) << bwd_params_time;
+            std::cout << std::setw(24) << std::setprecision(7) << bwd_inputs_time << std::setw(15) << (flop / bwd_inputs_time) * 1.e-6;
+            std::cout << std::setw(24) << std::setprecision(7) << bwd_params_time << std::setw(15) << (flop / bwd_params_time) * 1.e-6;
             std::cout << std::setw(19) << std::setprecision(8) << fwd_time + bwd_inputs_time + bwd_params_time;
         }
 
