@@ -1,9 +1,10 @@
-// Vector saves w, h, c, n, k, filter_w(s), filter_h(r), pad_w, pad_h, wstride, hstride
-// clang-format on
+// Vector saves w, h, c, n, k, filter_w(s), filter_h(r), pad_w, pad_h, wstride,
+// hstride
 std::vector<std::tuple<unsigned int, unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int>>
     inception_v3_bs128 = {
+        // clang-format off
         std::make_tuple( 17,  17,  128, 128, 128, 7, 1, 3, 0, 1, 1),
         std::make_tuple( 17,  17,  128, 128, 128, 1, 7, 0, 3, 1, 1),
         std::make_tuple( 17,  17,  128, 128, 192, 7, 1, 3, 0, 1, 1),
@@ -46,14 +47,15 @@ std::vector<std::tuple<unsigned int, unsigned int, unsigned int, unsigned int,
         std::make_tuple( 17,  17,  768, 128, 192, 1, 1, 0, 0, 1, 1),
         std::make_tuple( 73,  73,   80, 128, 192, 3, 3, 0, 0, 1, 1),
         std::make_tuple( 35,  35,   96, 128,  96, 3, 3, 0, 0, 2, 2),
-        std::make_tuple( 35,  35,   96, 128,  96, 3, 3, 1, 1, 1, 1)};
-// clang-format off
+        std::make_tuple( 35,  35,   96, 128,  96, 3, 3, 1, 1, 1, 1)
+        // clang-format on
+};
 
-// clang-format off
 std::vector<std::tuple<unsigned int, unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int>>
     resnet101_bs128 = {
+        // clang-format off
         std::make_tuple( 14,  14, 1024, 128, 1024, 1, 1, 0, 0, 1, 1),
         std::make_tuple( 14,  14, 1024, 128, 1024, 3, 3, 1, 1, 1, 1),
         std::make_tuple( 14,  14, 1024, 128, 2048, 1, 1, 0, 0, 1, 1),
@@ -72,31 +74,93 @@ std::vector<std::tuple<unsigned int, unsigned int, unsigned int, unsigned int,
         std::make_tuple( 28,  28,  512, 128,  512, 1, 1, 0, 0, 1, 1),
         std::make_tuple( 28,  28,  512, 128,  512, 3, 3, 1, 1, 1, 1),
         std::make_tuple( 56,  56,  512, 128,  512, 3, 3, 1, 1, 2, 2),
-        std::make_tuple( 56,  56,   64, 128,  256, 1, 1, 0, 0, 1, 1)};
-// clang-format on
+        std::make_tuple( 56,  56,   64, 128,  256, 1, 1, 0, 0, 1, 1)
+        // clang-format on
+};
 
-// clang-format off
 std::vector<std::tuple<unsigned int, unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int, unsigned int,
                        unsigned int, unsigned int, unsigned int>>
-    resnet50_bs128 = {std::make_tuple( 14,  14, 1024, 128, 2048, 1, 1, 0, 0, 2, 2),
-                      std::make_tuple( 14,  14, 1024, 128,  256, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple( 14,  14, 1024, 128,  512, 1, 1, 0, 0, 2, 2),
-                      std::make_tuple( 28,  28,  128, 128,  128, 3, 3, 1, 1, 1, 1),
-                      std::make_tuple( 28,  28,  128, 128,  512, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple(  7,   7, 2048, 128,  512, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple( 14,  14,  256, 128, 1024, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple( 14,  14,  256, 128,  256, 3, 3, 1, 1, 1, 1),
-                      std::make_tuple( 56,  56,  256, 128,  128, 1, 1, 0, 0, 2, 2),
-                      std::make_tuple( 56,  56,  256, 128,  512, 1, 1, 0, 0, 2, 2),
-                      std::make_tuple( 56,  56,  256, 128,   64, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple(230, 230,    3, 128,   64, 7, 7, 0, 0, 2, 2),
-                      std::make_tuple( 28,  28,  512, 128, 1024, 1, 1, 0, 0, 2, 2),
-                      std::make_tuple( 28,  28,  512, 128,  128, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple( 28,  28,  512, 128,  256, 1, 1, 0, 0, 2, 2),
-                      std::make_tuple(  7,   7,  512, 128, 2048, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple(  7,   7,  512, 128,  512, 3, 3, 1, 1, 1, 1),
-                      std::make_tuple( 56,  56,   64, 128,  256, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple( 56,  56,   64, 128,   64, 1, 1, 0, 0, 1, 1),
-                      std::make_tuple( 56,  56,   64, 128,   64, 3, 3, 1, 1, 1, 1)};
-// clang-format on
+    resnet50_bs128 = {
+        // clang-format off
+        std::make_tuple( 14,  14, 1024, 128, 2048, 1, 1, 0, 0, 2, 2),
+        std::make_tuple( 14,  14, 1024, 128,  256, 1, 1, 0, 0, 1, 1),
+        std::make_tuple( 14,  14, 1024, 128,  512, 1, 1, 0, 0, 2, 2),
+        std::make_tuple( 28,  28,  128, 128,  128, 3, 3, 1, 1, 1, 1),
+        std::make_tuple( 28,  28,  128, 128,  512, 1, 1, 0, 0, 1, 1),
+        std::make_tuple(  7,   7, 2048, 128,  512, 1, 1, 0, 0, 1, 1),
+        std::make_tuple( 14,  14,  256, 128, 1024, 1, 1, 0, 0, 1, 1),
+        std::make_tuple( 14,  14,  256, 128,  256, 3, 3, 1, 1, 1, 1),
+        std::make_tuple( 56,  56,  256, 128,  128, 1, 1, 0, 0, 2, 2),
+        std::make_tuple( 56,  56,  256, 128,  512, 1, 1, 0, 0, 2, 2),
+        std::make_tuple( 56,  56,  256, 128,   64, 1, 1, 0, 0, 1, 1),
+        std::make_tuple(230, 230,    3, 128,   64, 7, 7, 0, 0, 2, 2),
+        std::make_tuple( 28,  28,  512, 128, 1024, 1, 1, 0, 0, 2, 2),
+        std::make_tuple( 28,  28,  512, 128,  128, 1, 1, 0, 0, 1, 1),
+        std::make_tuple( 28,  28,  512, 128,  256, 1, 1, 0, 0, 2, 2),
+        std::make_tuple(  7,   7,  512, 128, 2048, 1, 1, 0, 0, 1, 1),
+        std::make_tuple(  7,   7,  512, 128,  512, 3, 3, 1, 1, 1, 1),
+        std::make_tuple( 56,  56,   64, 128,  256, 1, 1, 0, 0, 1, 1),
+        std::make_tuple( 56,  56,   64, 128,   64, 1, 1, 0, 0, 1, 1),
+        std::make_tuple( 56,  56,   64, 128,   64, 3, 3, 1, 1, 1, 1)
+        // clang-format on
+};
+
+struct SyntheticTest {
+  SyntheticTest(unsigned int n_, unsigned int k_, unsigned int c_)
+      : n(n_), k(k_), c(c_) {}
+
+  unsigned int n;
+  unsigned int k;
+  unsigned int c;
+
+  using type = std::vector<
+      std::tuple<unsigned int, unsigned int, unsigned int, unsigned int,
+                 unsigned int, unsigned int, unsigned int, unsigned int,
+                 unsigned int, unsigned int, unsigned int>>;
+
+  type conv_1x1_s1 = {
+      // clang-format off
+          std::make_tuple( 56,  56, c, n, k, 1, 1, 0, 0, 1, 1),
+          std::make_tuple( 28,  28, c, n, k, 1, 1, 0, 0, 1, 1),
+          std::make_tuple( 17,  17, c, n, k, 1, 1, 0, 0, 1, 1),
+          std::make_tuple( 14,  14, c, n, k, 1, 1, 0, 0, 1, 1),
+          std::make_tuple(  8,   8, c, n, k, 1, 1, 0, 0, 1, 1),
+          std::make_tuple(  7,   7, c, n, k, 1, 1, 0, 0, 1, 1)
+      // clang-format on
+  };
+
+  type conv_1x1_s2 = {
+      // clang-format off
+          std::make_tuple( 14,  14, c, n, k, 1, 1, 0, 0, 2, 2)
+      // clang-format on
+  };
+
+  type conv_non_1x1_no_pad = {
+      // clang-format off
+        //std::make_tuple( 149,  149, c, n, k, 3, 3, 0, 0, 1, 1),
+          std::make_tuple(  73,   73, c, n, k, 3, 3, 0, 0, 1, 1),
+          std::make_tuple(  35,   35, c, n, k, 3, 3, 0, 0, 2, 2),
+          std::make_tuple(  17,   17, c, n, k, 3, 3, 0, 0, 2, 2),
+          std::make_tuple(  34,   34, c, n, k, 3, 3, 0, 0, 1, 1),
+          std::make_tuple(  16,   16, c, n, k, 3, 3, 0, 0, 1, 1)
+      // clang-format on
+  };
+
+  type conv_non_1x1_pad = {
+      // clang-format off
+          std::make_tuple( 147,  147, c, n, k, 3, 3, 1, 1, 1, 1),
+          std::make_tuple(  56,   56, c, n, k, 3, 3, 1, 1, 1, 1),
+          std::make_tuple(  35,   35, c, n, k, 3, 3, 1, 1, 1, 1),
+          std::make_tuple(  28,   28, c, n, k, 3, 3, 1, 1, 1, 1),
+          std::make_tuple(  14,   14, c, n, k, 3, 3, 1, 1, 1, 1),
+          std::make_tuple(  28,   28, c, n, k, 3, 3, 1, 1, 2, 2),
+          std::make_tuple(   7,    7, c, n, k, 3, 3, 1, 1, 1, 1),
+          std::make_tuple(  35,   35, c, n, k, 5, 5, 2, 2, 1, 1),
+          std::make_tuple(  17,   17, c, n, k, 7, 1, 3, 0, 1, 1),
+          std::make_tuple(  17,   17, c, n, k, 1, 7, 0, 3, 1, 1),
+          std::make_tuple(  17,   17, c, n, k, 3, 1, 1, 0, 1, 1),
+          std::make_tuple(  17,   17, c, n, k, 1, 3, 0, 1, 1, 1)
+      // clang-format on
+  };
+};

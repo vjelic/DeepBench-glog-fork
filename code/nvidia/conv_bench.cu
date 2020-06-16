@@ -524,7 +524,9 @@ int main(int argc, char **argv) {
 
     int pad_kernels_count = 0;
 
-    for (const auto &problem : inception_v3_bs128) {
+    auto test = SyntheticTest{128, 1024, 1024}.conv_non_1x1_no_pad;
+
+    for (const auto &problem : test) {
 
         // Filter parameters
         int k, c, r, s; // r - filter_h (f_h), s - filter_w (f_w)
