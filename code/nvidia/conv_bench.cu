@@ -524,7 +524,7 @@ int main(int argc, char **argv) {
 
     int pad_kernels_count = 0;
 
-    for (const auto &problem : resnet50_b128) {
+    for (const auto &problem : inception_v3_bs128) {
 
         // Filter parameters
         int k, c, r, s; // r - filter_h (f_h), s - filter_w (f_w)
