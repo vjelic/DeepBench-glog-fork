@@ -14,6 +14,7 @@
 #include "tensor.h"
 #include "cudnn_helper.h"
 #include "conv_problems.h"
+#include "conv_problems_2.h"
 
 #define USE_GET 0
 
