@@ -524,7 +524,11 @@ int main(int argc, char **argv) {
 
     int pad_kernels_count = 0;
 
-    auto test = SyntheticTest{128, 1024, 1024}.conv_non_1x1_no_pad;
+#if 0
+    auto test = SyntheticTest{128, 128, 128}.conv_non_1x1_pad;
+#else
+    auto test = inception_v4_bs128;
+#endif
 
     for (const auto &problem : test) {
 
