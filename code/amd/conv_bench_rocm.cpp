@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
             << std::endl;
 
   int total_fwd_time = 0, total_bwd_inputs_time = 0, total_bwd_params_time = 0;
-  for (const auto &problem : miopen_set) {
+  for (const auto &problem : inception3_set) {
 
     // Filter parameters
     int k, c, r, s; // r - filter_h (f_h), s - filter_w (f_w)
