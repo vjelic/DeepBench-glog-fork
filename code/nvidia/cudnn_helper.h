@@ -310,6 +310,7 @@ public:
 
 };
 
+#if 0
 template <typename T>
 class RNNDescriptor {
     std::shared_ptr<cudnnRNNDescriptor_t> desc_;
@@ -381,3 +382,4 @@ public:
     cudnnRNNDescriptor_t desc() { return *desc_; }
 
 };
+#endif

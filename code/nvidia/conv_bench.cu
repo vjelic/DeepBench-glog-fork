@@ -548,7 +548,7 @@ int main(int argc, char **argv) {
 
     int pad_kernels_count = 0;
 
-    for (const auto &problem : miopen_set) {
+    for (const auto &problem : resnet50_set) {
 
         // Filter parameters
         int k, c, r, s; // r - filter_h (f_h), s - filter_w (f_w)
